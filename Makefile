@@ -1,9 +1,10 @@
 .PHONY: all
 
-all: hello
-
-hello:
+all:
+# hello
 	cd ./src/hello && make
+# 2839
+	cd ./src/2839 && make
 
 clean :
 	cd ./src/hello && make clean

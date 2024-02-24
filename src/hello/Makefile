@@ -1,5 +1,5 @@
 ROOT = ../..
 TARGET = hello
-SRCS = hello.cpp
+SRCS = main.cpp
 
 include ../../common.make

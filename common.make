@@ -23,10 +23,14 @@ LDFLAGS     := -L/usr/lib -L/usr/local/lib
 # (e.g SRCS 는 foo.cc bar.cc main.cc 가 된다.)
 # SRCS = $(notdir $(wildcard $(SRCDIR)/*.cpp))
 
+
 OBJS = $(SRCS:.cpp=.o)
 
 # OBJS 안의 object 파일들 이름 앞에 $(OBJ_DIR)/ 을 붙인다.
 OBJECTS = $(patsubst %.o,$(OBJDIR)/%.o,$(OBJS))
+
+# $(info $$OBJECTS is [${OBJECTS}])
+
 DEPS = $(OBJECTS:.o=.d)
 
 all: $(TARGETPATH)
@@ -39,6 +43,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $(LDFLAGS) -MD -o $@ -c $<
 	
+
 
 $(TARGETPATH): $(OBJECTS)
 	@echo '$$'LDFLAGS is $(LDFLAGS)
