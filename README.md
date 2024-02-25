@@ -1,8 +1,11 @@
 알고리즘 노트
 
 ## 목차
+◼︎[최단 거리 알고리즘](#◼최단 거리 알고리즘︎)
 ◼︎[Dynamic Programming](#◼︎Dynamic-Programming)
+
 ◼︎[Graph Theory](#◼︎Graph-Theory)
+
 ◼︎Greedy
 ◼︎브루트포스 알고리즘
 ◼︎그래프 탐색
@@ -38,6 +41,15 @@
 ◼︎아호-코라식
 
 *****
+
+◼︎최단 거리 알고리즘
+최단 거리 알고리즘이란 그래프 상에서 노드 간의 탐색 비용을 최소화하는 알고리즘이다.
+최단 거리 알고리즘을 다음의 3가지가 있다.
+
+1. 다익스트라(Dijkstra) 
+2. 플로이드 워셜(Floyd Warshall) 
+3. 벨만 포드(Bellman Ford)
+
 
 ◼︎Dynamic Programming
 예제)[2839](/src/2839/)
