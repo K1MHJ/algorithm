@@ -34,9 +34,9 @@ using ScoreType = int64_t; // ゲームの評価スコアの型を決めてお�
 constexpr const ScoreType INF =
     1000000000LL; // あり得ないぐらい大きなスコアの例を用意しておく
 
-constexpr const int H = 3;  // 迷路の高さ
-constexpr const int W = 4;  // 迷路の幅
-constexpr int END_TURN = 4; // ゲーム終了ターン
+constexpr const int H = 30;  // 迷路の高さ
+constexpr const int W = 30;  // 迷路の幅
+constexpr int END_TURN = 100; // ゲーム終了ターン
 
 // 一人ゲームの例
 // 1ターンに上下左右四方向のいずれかに1マスずつ進む。
@@ -141,15 +141,16 @@ bool operator<(const MazeState &maze_1, const MazeState &maze_2) {
   return maze_1.evaluated_score_ < maze_2.evaluated_score_;
 }
 
-int chokudaiSearchAction(const State &state, const int beam_width,
-                         const int beam_depth, const int beam_number) {
+int chokudaiSearchActionWithTimeThreshold(const State &state, const int beam_width,
+                         const int beam_depth, const int64_t time_threshold) {
+  auto time_keeper = TimeKeeper(time_threshold);
   auto beam = std::vector<std::priority_queue<State>>(beam_depth + 1);
 
   for (int t = 0; t < beam_depth + 1; ++t) {
     beam[t] = std::priority_queue<State>();
   }
   beam[0].push(state);
-  for (int cnt = 0; cnt < beam_number; ++cnt) {
+  for (int cnt = 0; ; ++cnt) {
     for (int t = 0; t < beam_depth; ++t) {
       auto &now_beam = beam[t];
       auto &next_beam = beam[t + 1];
@@ -174,6 +175,9 @@ int chokudaiSearchAction(const State &state, const int beam_width,
         }
       }
     }
+    if(time_keeper.isTimeOver()){
+      break;
+    }
   }
   for (int t = beam_depth; t >= 0; t--) {
     const auto &now_beam = beam[t];
@@ -194,7 +198,7 @@ void testAiScore(const int game_number) {
     auto state = State(mt_for_construct());
     bool isfirst = true;
     while (!state.isDone()) {
-      state.advance(chokudaiSearchAction(state, 5, END_TURN, 2));
+      state.advance(chokudaiSearchActionWithTimeThreshold(state, 1, END_TURN, 1));
       if (isfirst) {
         isfirst = false;
       }
