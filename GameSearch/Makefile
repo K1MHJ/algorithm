@@ -19,14 +19,14 @@ OBJS := $(SRCS:.cpp=.o)
 OBJECTS = $(patsubst %.o,$(OBJDIR)/%.o,$(OBJS))
 DEPS = $(OBJECTS:.o=.d)
 
-TARGET := MazeState
+TARGET := Game
 
 all : $(BINDIR)$(TARGET)
 
 run:
 	$(BINDIR)$(TARGET)
 
-$(BINDIR)MazeState : $(SRCDIR)main.cpp
+$(BINDIR)Game : $(SRCDIR)OnePlayerGame.cpp
 	mkdir -p $(BINDIR)
 	$(CXX) -o $@ $(CFLAGS) $(INCLUDE) $(LDFLAGS) $^
 
