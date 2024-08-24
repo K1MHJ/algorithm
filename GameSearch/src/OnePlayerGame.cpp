@@ -3,6 +3,8 @@
 #include <sstream>
 #include <random>
 #include <iostream>
+#include <queue>
+
 // 座標を保持する
 struct Coord
 {
@@ -36,6 +38,7 @@ public:
     Coord character_ = Coord();
     int game_score_ = 0;            // ゲーム上で実際に得たスコア
     ScoreType evaluated_score_ = 0; // 探索上で評価したスコア
+    int first_action_ = -1;
     MazeState() {}
 
     // h*wの迷路を生成する。
@@ -135,24 +138,43 @@ int randomAction(const State &state)
     return legal_actions[mt_for_action() % (legal_actions.size())];
 }
 
-// 貪欲法で行動を決定する
-int greedyAction(const State &state)
+bool operator<(const MazeState &maze_1, const MazeState &maze_2)
 {
-    auto legal_actions = state.legalActions();
-    ScoreType best_score = -INF; // 絶対にありえない小さな値でベストスコアを初期化する
-    int best_action = -1;        // ありえない行動で初期化する
-    for (const auto action : legal_actions)
-    {
-        State now_state = state;
-        now_state.advance(action);
-        now_state.evaluateScore();
-        if (now_state.evaluated_score_ > best_score)
-        {
-            best_score = now_state.evaluated_score_;
-            best_action = action;
+    return maze_1.evaluated_score_ < maze_2.evaluated_score_;
+}
+
+int beamSearchAction(const State &state, const int beam_width, const int beam_depth)
+{
+  std::priority_queue<State> now_beam;
+  State best_state;
+
+  now_beam.push(state);
+  for(int t = 0;t<beam_depth;++t){
+    std::priority_queue<State> next_beam;
+    for(int i = 0;i<beam_width;++i){
+      if(now_beam.empty()){
+        break;
+      }
+      State now_state = now_beam.top();
+      now_beam.pop();
+      auto legal_actions = now_state.legalActions();
+      for(const auto& action : legal_actions){
+        State next_state = now_state;
+        next_state.advance(action);
+        next_state.evaluateScore();
+        if(t == 0){
+          next_state.first_action_ = action;
         }
+        next_beam.push(next_state);
+      }
     }
-    return best_action;
+    now_beam = next_beam;
+    best_state = now_beam.top();
+    if(best_state.isDone()){
+      break;
+    }
+  } 
+  return best_state.first_action_;
 }
 
 // ゲームをgame_number回プレイして平均スコアを表示する
@@ -165,10 +187,9 @@ void testAiScore(const int game_number)
     for (int i = 0; i < game_number; i++)
     {
         auto state = State(mt_for_construct());
-
         while (!state.isDone())
         {
-            state.advance(greedyAction(state));
+            state.advance(beamSearchAction(state, /*beam幅*/ 2, /*ビームの深さ*/ END_TURN));
         }
         auto score = state.game_score_;
         score_mean += score;
