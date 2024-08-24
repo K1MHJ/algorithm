@@ -1,5 +1,6 @@
-./bin
-./obj
+./bin/
+./bin/*
+./obj/
 
 # Prerequisites
 *.d
