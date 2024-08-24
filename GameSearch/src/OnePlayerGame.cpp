@@ -155,22 +155,29 @@ int greedyAction(const State &state)
     return best_action;
 }
 
-// シードを指定してゲーム状況を表示しながらAIにプレイさせる。
-void playGame(const int seed)
+// ゲームをgame_number回プレイして平均スコアを表示する
+void testAiScore(const int game_number)
 {
     using std::cout;
     using std::endl;
-
-    auto state = State(seed);
-    cout << state.toString() << endl;
-    while (!state.isDone())
+    std::mt19937 mt_for_construct(0);
+    double score_mean = 0;
+    for (int i = 0; i < game_number; i++)
     {
-        state.advance(greedyAction(state));
-        cout << state.toString() << endl;
+        auto state = State(mt_for_construct());
+
+        while (!state.isDone())
+        {
+            state.advance(randomAction(state));
+        }
+        auto score = state.game_score_;
+        score_mean += score;
     }
+    score_mean /= (double)game_number;
+    cout << "Score:\t" << score_mean << endl;
 }
 int main()
 {
-    playGame(/*盤面初期化のシード*/ 121321);
+    testAiScore(/*ゲームを繰り返す回数*/ 100);
     return 0;
 }
