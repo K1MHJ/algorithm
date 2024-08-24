@@ -168,7 +168,7 @@ void testAiScore(const int game_number)
 
         while (!state.isDone())
         {
-            state.advance(randomAction(state));
+            state.advance(greedyAction(state));
         }
         auto score = state.game_score_;
         score_mean += score;
