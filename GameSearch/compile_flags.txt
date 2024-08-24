@@ -1,0 +1,8 @@
+-include cstdint
+-I/opt/homebrew/include/
+-I/opt/homebrew/Cellar/ncurses/6.5/include
+-I/usr/include/
+-I/usr/local/include/
+-I./src/
+-std=c++20
+-xc++
