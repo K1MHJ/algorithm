@@ -26,7 +26,7 @@ all : $(BINDIR)$(TARGET)
 run:
 	$(BINDIR)$(TARGET)
 
-$(BINDIR)MazeState : $(SRCDIR)00_MazeState.cpp
+$(BINDIR)MazeState : $(SRCDIR)main.cpp
 	mkdir -p $(BINDIR)
 	$(CXX) -o $@ $(CFLAGS) $(INCLUDE) $(LDFLAGS) $^
 

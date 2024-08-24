@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <random>
 #include <sstream>
@@ -12,8 +14,9 @@ struct Coord {
 constexpr const int H = 3;
 constexpr const int W = 4;
 constexpr int END_TURN = 4;
+
 class MazeState {
-private:
+protected:
   int points_[H][W] = {};
   int turn_ = 0;
 
@@ -37,7 +40,7 @@ public:
   }
   bool isDone() const { return this->turn_ == END_TURN; }
 
-private:
+protected:
   static constexpr const int dx[4] = {1, -1, 0, 0};
   static constexpr const int dy[4] = {0, 0, 1, -1};
 
@@ -84,29 +87,3 @@ public:
     return ss.str();
   }
 };
-
-using State = MazeState;
-std::mt19937 mt_for_action(0);
-int randomAction(const State &state) {
-  auto legal_actions = state.legalActions();
-  return legal_actions[mt_for_action() % (legal_actions.size())];
-}
-
-void playGame(const int seed) {
-  using std::cout;
-  using std::endl;
-
-  auto state = State(seed);
-  cout << state.toString() << endl;
-  while (!state.isDone()) {
-    state.advance(randomAction(state));
-    cout << state.toString() << endl;
-  }
-}
-int main()
-{
-  using std::cout;
-  using std::endl;
-  playGame(121321);
-  return 0;
-}
