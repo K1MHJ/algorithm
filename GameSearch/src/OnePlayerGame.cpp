@@ -34,8 +34,8 @@ using ScoreType = int64_t; // ゲームの評価スコアの型を決めてお�
 constexpr const ScoreType INF =
     1000000000LL; // あり得ないぐらい大きなスコアの例を用意しておく
 
-constexpr const int H = 30;   // 迷路の高さ
-constexpr const int W = 40;   // 迷路の幅
+constexpr const int H = 3;  // 迷路の高さ
+constexpr const int W = 4;  // 迷路の幅
 constexpr int END_TURN = 4; // ゲーム終了ターン
 
 // 一人ゲームの例
@@ -141,43 +141,47 @@ bool operator<(const MazeState &maze_1, const MazeState &maze_2) {
   return maze_1.evaluated_score_ < maze_2.evaluated_score_;
 }
 
-int beamSearchActionWithTimeThreshold(const State &state, const int beam_width,
-                                      const int64_t time_threshold) {
-  auto time_keeper = TimeKeeper(time_threshold);
-  auto legal_actions = state.legalActions();
-  std::priority_queue<State> now_beam;
-  State best_state;
+int chokudaiSearchAction(const State &state, const int beam_width,
+                         const int beam_depth, const int beam_number) {
+  auto beam = std::vector<std::priority_queue<State>>(beam_depth + 1);
 
-  now_beam.push(state);
-  for (int t = 0;; ++t) {
-    std::priority_queue<State> next_beam;
-    for (int i = 0; i < beam_width; ++i) {
-      if (time_keeper.isTimeOver()) {
-        return best_state.first_action_;
-      }
-      if (now_beam.empty()) {
-        break;
-      }
-      State now_state = now_beam.top();
-      now_beam.pop();
-      auto legal_actions = now_state.legalActions();
-      for (const auto &action : legal_actions) {
-        State next_state = now_state;
-        next_state.advance(action);
-        next_state.evaluateScore();
-        if (t == 0) {
-          next_state.first_action_ = action;
+  for (int t = 0; t < beam_depth + 1; ++t) {
+    beam[t] = std::priority_queue<State>();
+  }
+  beam[0].push(state);
+  for (int cnt = 0; cnt < beam_number; ++cnt) {
+    for (int t = 0; t < beam_depth; ++t) {
+      auto &now_beam = beam[t];
+      auto &next_beam = beam[t + 1];
+      for (int i = 0; i < beam_width; ++i) {
+        if (now_beam.empty()) {
+          break;
         }
-        next_beam.push(next_state);
+        State now_state = now_beam.top();
+        if (now_state.isDone()) {
+          break;
+        }
+        now_beam.pop();
+        auto legal_actions = now_state.legalActions();
+        for (const auto &action : legal_actions) {
+          State next_state = now_state;
+          next_state.advance(action);
+          next_state.evaluateScore();
+          if (t == 0) {
+            next_state.first_action_ = action;
+          }
+          next_beam.push(next_state);
+        }
       }
-    }
-    now_beam = next_beam;
-    best_state = now_beam.top();
-    if (best_state.isDone()) {
-      break;
     }
   }
-  return best_state.first_action_;
+  for (int t = beam_depth; t >= 0; t--) {
+    const auto &now_beam = beam[t];
+    if (!now_beam.empty()) {
+      return now_beam.top().first_action_;
+    }
+  }
+  return -1;
 }
 
 // ゲームをgame_number回プレイして平均スコアを表示する
@@ -190,7 +194,7 @@ void testAiScore(const int game_number) {
     auto state = State(mt_for_construct());
     bool isfirst = true;
     while (!state.isDone()) {
-      state.advance(beamSearchActionWithTimeThreshold(state, 5, 1));
+      state.advance(chokudaiSearchAction(state, 5, END_TURN, 2));
       if (isfirst) {
         isfirst = false;
       }
