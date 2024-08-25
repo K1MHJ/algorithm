@@ -19,14 +19,18 @@ OBJS := $(SRCS:.cpp=.o)
 OBJECTS = $(patsubst %.o,$(OBJDIR)/%.o,$(OBJS))
 DEPS = $(OBJECTS:.o=.d)
 
-TARGET := Game
+TARGET := HeuristicGame
 
 all : $(BINDIR)$(TARGET)
 
 run:
 	$(BINDIR)$(TARGET)
 
-$(BINDIR)Game : $(SRCDIR)OnePlayerGame.cpp
+$(BINDIR)OnePlayerGame : $(SRCDIR)OnePlayerGame.cpp
+	mkdir -p $(BINDIR)
+	$(CXX) -o $@ $(CFLAGS) $(INCLUDE) $(LDFLAGS) $^
+
+$(BINDIR)HeuristicGame : $(SRCDIR)HeuristicGame.cpp
 	mkdir -p $(BINDIR)
 	$(CXX) -o $@ $(CFLAGS) $(INCLUDE) $(LDFLAGS) $^
 
