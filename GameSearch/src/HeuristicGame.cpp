@@ -190,24 +190,70 @@ State hillClimb(const State &state, int number) {
   return now_state;
 }
 
+State simulatedAnnealing(const State &state, int number, double start_temp,
+                         double end_temp) {
+  State now_state = state;
+  now_state.init();
+  ScoreType best_score = now_state.getScore();
+  ScoreType now_score = best_score;
+  auto best_state = now_state;
+
+  for (int i = 0; i < number; i++) {
+    auto next_state = now_state;
+    next_state.transition();
+    auto next_score = next_state.getScore();
+    double temp = start_temp + (end_temp - start_temp) * (i / number);
+    double probability =
+        exp((next_score - now_score) / temp); // 確率probで遷移する
+    bool is_force_next = probability > (mt_for_action() % INF) / (double)INF;
+    if (next_score > now_score || is_force_next) {
+      now_score = next_score;
+      now_state = next_state;
+    }
+
+    if (next_score > best_score) {
+      best_score = next_score;
+      best_state = next_state;
+    }
+  }
+  return best_state;
+}
+
 using AIFunction = std::function<State(const State &)>;
 
 using StringAIPair = std::pair<std::string, AIFunction>;
 
-// ゲームを1回プレイしてゲーム状況を表示する
-void playGame(const StringAIPair &ai, const int seed) {
+// ゲームをgame_number回プレイして平均スコアを表示する
+void testAiScore(const StringAIPair &ai, const int game_number) {
   using std::cout;
   using std::endl;
-  auto state = State(seed);
-  state = ai.second(state);
-  cout << state.toString() << endl;
-  auto score = state.getScore(true);
-  cout << "Score of " << ai.first << ": " << score << endl;
+  std::mt19937 mt_for_construct(0);
+  double score_mean = 0;
+  for (int i = 0; i < game_number; i++) {
+    auto state = State(mt_for_construct());
+    state = ai.second(state);
+
+    auto score = state.getScore(false);
+    score_mean += score;
+  }
+  score_mean /= (double)game_number;
+  cout << "Score of " << ai.first << ":\t" << score_mean << endl;
 }
 
 int main() {
-  const auto &ai = StringAIPair(
-      "hillClimb", [&](const State &state) { return hillClimb(state, 10000); });
-  playGame(ai, 0); // 盤面生成シードを0に設定してプレイする。
+  int simulate_number = 10000;
+  const std::vector<StringAIPair> ais = {
+      StringAIPair("hillClimb",
+                   [&](const State &state) {
+                     return hillClimb(state, simulate_number);
+                   }),
+      StringAIPair("simulatedAnnealing", [&](const State &state) {
+        return simulatedAnnealing(state, simulate_number, /*start_temp*/ 500,
+                                  /*end_temp*/ 10);
+      })};
+  int game_number = 1000;
+  for (const auto &ai : ais) {
+    testAiScore(ai, game_number);
+  }
   return 0;
 }
