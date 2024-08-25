@@ -241,7 +241,7 @@ void testAiScore(const StringAIPair &ai, const int game_number) {
 }
 
 int main() {
-  int simulate_number = 10000;
+  int simulate_number = 100;
   const std::vector<StringAIPair> ais = {
       StringAIPair("hillClimb",
                    [&](const State &state) {
