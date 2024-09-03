@@ -6,19 +6,26 @@
 #define _TEST
 
 void test(std::istream &input, std::ostream &output) {
-  int value[2];
-  input >> value[0] >> value[1];
-  output << 1;
+  int A,B;
+  input >> A >> B;
+  output << A+B << std::endl;
+  output << A-B << std::endl;
+  output << A*B << std::endl;
+  output << A/B << std::endl;
+  output << A%B << std::endl;
 }
 
 TEST(Some, Test) {
   std::ostringstream ostr;
   ostr << "7 3";
+  std::ostringstream exp_ostr;
+  exp_ostr << "10\n4\n21\n2\n1\n";
+
   std::istringstream istr(ostr.str());
   ostr.str("");
   ostr.clear();
   test(istr, ostr);
-  ASSERT_STREQ(ostr.str().c_str(), "2");
+  ASSERT_STREQ(ostr.str().c_str(), exp_ostr.str().c_str());
 }
 
 int main(int argc, char **argv) {
