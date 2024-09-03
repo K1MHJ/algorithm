@@ -1,4 +1,6 @@
 .PHONY: all
+SRC := 1010.cpp
+
 
 CC := clang
 CXX := clang++
@@ -13,7 +15,6 @@ BINDIR := ./bin/
 INCLUDE := -I/opt/homebrew/include/ -I/usr/include/ -I/usr/local/include/
 LDFLAGS := -L/usr/lib -L/usr/local/lib -lgtest_main -lgtest
 
-SRC := 10869.cpp
 OBJS  := $(addprefix $(OBJDIR), $(SRC:.cpp=.o)) 
 DEPS  := $(addprefix $(OBJDIR), $(SRC:.cpp=.d))
 
