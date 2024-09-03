@@ -1,9 +1,12 @@
+//#define _TEST
+
+#ifdef _TEST
 #include "gtest/gtest.h"
-#include <iostream>
 #include <istream>
 #include <sstream>
-
-#define _TEST
+#else
+#include <iostream>
+#endif
 
 void test(std::istream &input, std::ostream &output) {
   int A,B;
@@ -15,6 +18,7 @@ void test(std::istream &input, std::ostream &output) {
   output << A%B << std::endl;
 }
 
+#ifdef _TEST
 TEST(Some, Test) {
   std::ostringstream ostr;
   ostr << "7 3";
@@ -27,6 +31,7 @@ TEST(Some, Test) {
   test(istr, ostr);
   ASSERT_STREQ(ostr.str().c_str(), exp_ostr.str().c_str());
 }
+#endif
 
 int main(int argc, char **argv) {
 #ifndef _TEST
