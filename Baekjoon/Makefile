@@ -4,26 +4,34 @@ CC := clang
 CXX := clang++
 LD := clang++
 AR := ar
-CFLAGS := -g -O2 -Wall -std=c++20
-# CXXFLAGS = $(CFLAGS) -std=c++20 -MD 
+CFLAGS := -g
+CXXFLAGS = $(CFLAGS) -std=c++17 -c
 
 SRCDIR := ./src/
 OBJDIR := ./obj/
 BINDIR := ./bin/
 INCLUDE := -I/opt/homebrew/include/ -I/usr/include/ -I/usr/local/include/
-LDFLAGS := -L/usr/lib -L/usr/local/lib
+LDFLAGS := -L/usr/lib -L/usr/local/lib -lgtest_main -lgtest
 
-OBJS := $(SRCS:.cpp=.o)
+SRC := 10869.cpp
+OBJS  := $(addprefix $(OBJDIR), $(SRC:.cpp=.o)) 
+DEPS  := $(addprefix $(OBJDIR), $(SRC:.cpp=.d))
 
-# OBJS 안의 object 파일들 이름 앞에 $(OBJ_DIR)/ 을 붙인다.
-OBJECTS = $(patsubst %.o,$(OBJDIR)/%.o,$(OBJS))
-DEPS = $(OBJECTS:.o=.d)
+TARGET := app 
 
-all :
+all : $(BINDIR)$(TARGET)
+run : 
+	$(BINDIR)$(TARGET)
 
-8407: $(SRCDIR)8407.cpp
-	mkdir -p $(BINDIR)
-	$(CXX) -o $(BINDIR)$@ $(CFLAGS) $(INCLUDE) $(LDFLAGS) $^
+$(BINDIR)$(TARGET): $(OBJS)
+	@echo '$$'LDFLAGS is $(LDFLAGS)
+	mkdir -p $(@D)
+	$(LD) $^ -o $@ $(LDFLAGS)
+
+$(OBJDIR)%.o: $(SRCDIR)/%.cpp
+	# @[ -d $(OBJDIR) ]
+	mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $<
 
 clean :
 	rm -rf ./bin ./obj
