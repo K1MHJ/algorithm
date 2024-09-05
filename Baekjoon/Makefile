@@ -1,5 +1,5 @@
 .PHONY: all
-SRC := 1011.cpp
+SRC := 1012.cpp
 
 
 CC := clang
